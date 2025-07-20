@@ -166,6 +166,71 @@ public class GitHubOAuthController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// 获取应用程序级别的访问令牌（使用 Client Credentials）
+    /// </summary>
+    /// <returns>应用程序访问令牌</returns>
+    [HttpPost("app-token")]
+    public async Task<IActionResult> GetAppToken()
+    {
+        try
+        {
+            var appToken = await _gitHubOAuthService.GetAppAccessTokenAsync();
+            
+            return Ok(new 
+            { 
+                appToken,
+                tokenType = "application",
+                message = "Application token generated successfully",
+                note = "This token is for application-level API access with limited permissions"
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to get application token: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 测试应用程序级别的 GitHub API 访问
+    /// </summary>
+    /// <returns>GitHub API 速率限制信息</returns>
+    [HttpGet("app-test")]
+    public async Task<IActionResult> TestAppAccess()
+    {
+        try
+        {
+            var appClient = _gitHubOAuthService.CreateAppAuthenticatedClient();
+            
+            // 获取 API 速率限制信息作为测试
+            var rateLimit = await appClient.RateLimit.GetRateLimits();
+            
+            return Ok(new 
+            { 
+                message = "Application-level API access successful",
+                rateLimit = new
+                {
+                    core = new
+                    {
+                        limit = rateLimit.Resources.Core.Limit,
+                        remaining = rateLimit.Resources.Core.Remaining,
+                        reset = rateLimit.Resources.Core.Reset
+                    },
+                    search = new
+                    {
+                        limit = rateLimit.Resources.Search.Limit,
+                        remaining = rateLimit.Resources.Search.Remaining,
+                        reset = rateLimit.Resources.Search.Reset
+                    }
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to test application access: {ex.Message}");
+        }
+    }
+
     private string? ExtractTokenFromAuthHeader(string authorization)
     {
         if (string.IsNullOrEmpty(authorization))

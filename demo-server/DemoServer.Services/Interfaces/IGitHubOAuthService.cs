@@ -40,4 +40,18 @@ public interface IGitHubOAuthService
     /// <param name="accessToken">访问令牌</param>
     /// <returns>用户信息</returns>
     Task<User> GetCurrentUserAsync(string accessToken);
+    
+    /// <summary>
+    /// 使用 Client Credentials 获取应用程序访问令牌（仅限 GitHub Apps）
+    /// 注意：这种方式获取的 token 用于应用程序级别的 API 访问，不代表任何用户
+    /// </summary>
+    /// <returns>应用程序访问令牌</returns>
+    Task<string> GetAppAccessTokenAsync();
+    
+    /// <summary>
+    /// 使用 ClientId 和 ClientSecret 创建已认证的 GitHub 客户端
+    /// 用于不需要用户授权的 GitHub API 调用
+    /// </summary>
+    /// <returns>使用 Basic Auth 的 GitHubClient 实例</returns>
+    GitHubClient CreateAppAuthenticatedClient();
 }
