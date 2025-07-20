@@ -85,8 +85,10 @@ public class GitHubOAuthService : IGitHubOAuthService
             await client.User.Current();
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"Exception occurred while validating token: {ex.Message}");
+            Console.WriteLine(ex.StackTrace);
             return false;
         }
     }
