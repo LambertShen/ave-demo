@@ -20,6 +20,11 @@ public class GitHubOptions
     public string RedirectUri { get; set; } = string.Empty;
     
     /// <summary>
+    /// GitHub 访问令牌
+    /// </summary>
+    public string AccessToken { get; set; } = string.Empty;
+    
+    /// <summary>
     /// GitHub API 的基础 URL (默认为 GitHub.com)
     /// </summary>
     public string BaseUrl { get; set; } = "https://api.github.com";

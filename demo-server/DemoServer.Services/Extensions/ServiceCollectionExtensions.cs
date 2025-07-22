@@ -25,6 +25,12 @@ public static class ServiceCollectionExtensions
         // 注册 GitHub Issues 服务
         services.AddScoped<IGitHubIssuesService, GitHubIssuesService>();
         
+        // 注册 GitHub Pull Request 服务
+        services.AddScoped<IGitHubPullRequestService, GitHubPullRequestService>();
+        
+        // 注册 GitHub Commit 服务
+        services.AddScoped<IGitHubCommitService, GitHubCommitService>();
+        
         return services;
     }
 }
