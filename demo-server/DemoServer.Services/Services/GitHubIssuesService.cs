@@ -39,7 +39,7 @@ public class GitHubIssuesService : IGitHubIssuesService
 
         var options = new ApiOptions
         {
-            PageSize = Math.Min(pageSize, 100), // GitHub 限制最大100
+            PageSize = Math.Min(pageSize, 100), // GitHub limits maximum to 100
             PageCount = 1,
             StartPage = page
         };
