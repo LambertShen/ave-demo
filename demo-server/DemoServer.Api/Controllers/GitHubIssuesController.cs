@@ -17,18 +17,18 @@ public class GitHubIssuesController : ControllerBase
     }
 
     /// <summary>
-    /// 获取指定仓库的 Issues 列表
+    /// Retrieves the list of issues for the specified repository.
     /// </summary>
-    /// <param name="owner">仓库所有者</param>
-    /// <param name="repo">仓库名称</param>
-    /// <param name="authorization">包含访问令牌的 Authorization 头</param>
-    /// <param name="state">Issue 状态：open, closed, all</param>
-    /// <param name="labels">标签过滤，用逗号分隔</param>
-    /// <param name="sort">排序方式：created, updated, comments</param>
-    /// <param name="direction">排序方向：asc, desc</param>
-    /// <param name="page">页码（从1开始）</param>
-    /// <param name="pageSize">每页数量（最大100）</param>
-    /// <returns>Issues 列表</returns>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repo">The name of the repository.</param>
+    /// <param name="authorization">Authorization header containing the access token.</param>
+    /// <param name="state">The state of the issues: open, closed, or all.</param>
+    /// <param name="labels">Filter by labels, separated by commas.</param>
+    /// <param name="sort">The sorting method: created, updated, or comments.</param>
+    /// <param name="direction">The sorting direction: asc or desc.</param>
+    /// <param name="page">The page number (starting from 1).</param>
+    /// <param name="pageSize">The number of items per page (maximum 100).</param>
+    /// <returns>A list of issues.</returns>
     [HttpGet("{owner}/{repo}")]
     public async Task<IActionResult> GetRepositoryIssues(
         string owner,
