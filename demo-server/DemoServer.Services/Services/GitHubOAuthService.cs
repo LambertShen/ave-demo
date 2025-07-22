@@ -152,4 +152,61 @@ public class GitHubOAuthService : IGitHubOAuthService
             Credentials = new Credentials(_options.ClientId, _options.ClientSecret)
         };
     }
+
+    /// <summary>
+    /// 使用配置中的 AccessToken 创建已认证的 GitHub 客户端
+    /// </summary>
+    /// <returns>已认证的 GitHubClient</returns>
+    public GitHubClient CreateClientFromAccessTokenAsync()
+    {
+        // 验证配置
+        if (string.IsNullOrEmpty(_options.AccessToken))
+        {
+            throw new InvalidOperationException("GitHub AccessToken is not configured");
+        }
+        
+        return CreateAuthenticatedClient(_options.AccessToken);
+    }
+
+    /// <summary>
+    /// 获取配置中的 AccessToken
+    /// </summary>
+    /// <returns>AccessToken</returns>
+    public string GetConfiguredAccessToken()
+    {
+        if (string.IsNullOrEmpty(_options.AccessToken))
+        {
+            throw new InvalidOperationException("GitHub AccessToken is not configured");
+        }
+        
+        return _options.AccessToken;
+    }
+
+    /// <summary>
+    /// 使用配置中的 AccessToken 获取用户信息
+    /// </summary>
+    /// <returns>用户信息</returns>
+    public async Task<User> GetUserFromAccessTokenAsync()
+    {
+        var client = CreateClientFromAccessTokenAsync();
+        return await client.User.Current();
+    }
+
+    /// <summary>
+    /// 验证配置中的 AccessToken 是否有效
+    /// </summary>
+    /// <returns>令牌是否有效</returns>
+    public async Task<bool> ValidateConfiguredTokenAsync()
+    {
+        try
+        {
+            var client = CreateClientFromAccessTokenAsync();
+            await client.User.Current();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

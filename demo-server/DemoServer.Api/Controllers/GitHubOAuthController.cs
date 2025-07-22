@@ -231,6 +231,113 @@ public class GitHubOAuthController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// 使用配置的 AppCode 获取 AccessToken
+    /// </summary>
+    /// <param name="state">状态参数（可选）</param>
+    /// <returns>AccessToken 和用户信息</returns>
+    [HttpPost("appcode/token")]
+    public async Task<IActionResult> GetTokenFromAppCode([FromQuery] string? state = null)
+    {
+        try
+        {
+            var accessToken = _gitHubOAuthService.GetConfiguredAccessToken();
+            var user = await _gitHubOAuthService.GetUserFromAccessTokenAsync();
+
+            return Ok(new
+            {
+                accessToken = accessToken,
+                user = new
+                {
+                    id = user.Id,
+                    login = user.Login,
+                    name = user.Name,
+                    email = user.Email,
+                    avatarUrl = user.AvatarUrl,
+                    company = user.Company,
+                    location = user.Location,
+                    bio = user.Bio,
+                    publicRepos = user.PublicRepos,
+                    followers = user.Followers,
+                    following = user.Following,
+                    createdAt = user.CreatedAt,
+                    updatedAt = user.UpdatedAt,
+                    htmlUrl = user.HtmlUrl
+                },
+                message = "Successfully authenticated using AppCode"
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to authenticate with AppCode: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 使用配置的 AppCode 验证并获取用户信息
+    /// </summary>
+    /// <param name="state">状态参数（可选）</param>
+    /// <returns>用户信息</returns>
+    [HttpGet("appcode/user")]
+    public async Task<IActionResult> GetUserFromAppCode([FromQuery] string? state = null)
+    {
+        try
+        {
+            var client = _gitHubOAuthService.CreateClientFromAccessTokenAsync();
+            var user = await client.User.Current();
+
+            return Ok(new
+            {
+                id = user.Id,
+                login = user.Login,
+                name = user.Name,
+                email = user.Email,
+                avatarUrl = user.AvatarUrl,
+                company = user.Company,
+                location = user.Location,
+                bio = user.Bio,
+                publicRepos = user.PublicRepos,
+                followers = user.Followers,
+                following = user.Following,
+                createdAt = user.CreatedAt,
+                updatedAt = user.UpdatedAt,
+                htmlUrl = user.HtmlUrl,
+                type = user.Type.ToString(),
+                siteAdmin = user.SiteAdmin
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to get user info from AppCode: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 测试 AppCode 认证状态
+    /// </summary>
+    /// <returns>认证状态</returns>
+    [HttpGet("appcode/test")]
+    public async Task<IActionResult> TestAppCodeAuth()
+    {
+        try
+        {
+            var accessToken = _gitHubOAuthService.GetConfiguredAccessToken();
+            var isValid = await _gitHubOAuthService.ValidateConfiguredTokenAsync();
+
+            return Ok(new
+            {
+                hasAppCode = !string.IsNullOrEmpty(accessToken),
+                isValid = isValid,
+                message = isValid ? "AppCode authentication is working" : "AppCode authentication failed",
+                tokenLength = accessToken?.Length ?? 0
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"AppCode authentication test failed: {ex.Message}");
+        }
+    }
+
     private string? ExtractTokenFromAuthHeader(string authorization)
     {
         if (string.IsNullOrEmpty(authorization))

@@ -54,4 +54,28 @@ public interface IGitHubOAuthService
     /// </summary>
     /// <returns>使用 Basic Auth 的 GitHubClient 实例</returns>
     GitHubClient CreateAppAuthenticatedClient();
+
+    /// <summary>
+    /// 使用配置中的 AccessToken 创建已认证的 GitHub 客户端
+    /// </summary>
+    /// <returns>已认证的 GitHubClient</returns>
+    GitHubClient CreateClientFromAccessTokenAsync();
+
+    /// <summary>
+    /// 获取配置中的 AccessToken
+    /// </summary>
+    /// <returns>AccessToken</returns>
+    string GetConfiguredAccessToken();
+
+    /// <summary>
+    /// 使用配置中的 AccessToken 获取用户信息
+    /// </summary>
+    /// <returns>用户信息</returns>
+    Task<User> GetUserFromAccessTokenAsync();
+
+    /// <summary>
+    /// 验证配置中的 AccessToken 是否有效
+    /// </summary>
+    /// <returns>令牌是否有效</returns>
+    Task<bool> ValidateConfiguredTokenAsync();
 }

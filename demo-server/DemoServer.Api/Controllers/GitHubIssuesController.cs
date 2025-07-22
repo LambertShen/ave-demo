@@ -123,7 +123,7 @@ public class GitHubIssuesController : ControllerBase
                 createdAt = issue.CreatedAt,
                 updatedAt = issue.UpdatedAt,
                 closedAt = issue.ClosedAt,
-                htmlUrl = issue.HtmlUrl
+                htmlUrl = issue.HtmlUrl,
             };
 
             return Ok(result);
@@ -315,6 +315,338 @@ public class GitHubIssuesController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// 更新 Issue
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="issueNumber">Issue 编号</param>
+    /// <param name="request">更新请求</param>
+    /// <returns>更新后的 Issue</returns>
+    [HttpPatch("{owner}/{repo}/{issueNumber}")]
+    public async Task<IActionResult> UpdateIssue(
+        string owner,
+        string repo,
+        int issueNumber,
+        [FromBody] UpdateIssueRequest request)
+    {
+        try
+        {
+            var state = ParseItemState(request.State);
+            var issue = await _issuesService.UpdateIssueAsync(
+                owner, repo, issueNumber, request.Title, request.Body, 
+                state, request.Labels, request.Assignees);
+
+            return Ok(new
+            {
+                id = issue.Id,
+                number = issue.Number,
+                title = issue.Title,
+                body = issue.Body,
+                state = issue.State.ToString().ToLower(),
+                labels = issue.Labels.Select(l => new { name = l.Name, color = l.Color }),
+                assignees = issue.Assignees.Select(a => new { login = a.Login, avatarUrl = a.AvatarUrl }),
+                updatedAt = issue.UpdatedAt,
+                htmlUrl = issue.HtmlUrl
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to update issue: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 关闭 Issue
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="issueNumber">Issue 编号</param>
+    /// <param name="request">关闭请求</param>
+    /// <returns>关闭后的 Issue</returns>
+    [HttpPost("{owner}/{repo}/{issueNumber}/close")]
+    public async Task<IActionResult> CloseIssue(
+        string owner,
+        string repo,
+        int issueNumber,
+        [FromBody] CloseIssueRequest? request = null)
+    {
+        try
+        {
+            var issue = await _issuesService.CloseIssueAsync(owner, repo, issueNumber, request?.Comment);
+
+            return Ok(new
+            {
+                id = issue.Id,
+                number = issue.Number,
+                title = issue.Title,
+                state = issue.State.ToString().ToLower(),
+                closedAt = issue.ClosedAt,
+                htmlUrl = issue.HtmlUrl
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to close issue: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 重新打开 Issue
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="issueNumber">Issue 编号</param>
+    /// <param name="request">重新打开请求</param>
+    /// <returns>重新打开后的 Issue</returns>
+    [HttpPost("{owner}/{repo}/{issueNumber}/reopen")]
+    public async Task<IActionResult> ReopenIssue(
+        string owner,
+        string repo,
+        int issueNumber,
+        [FromBody] ReopenIssueRequest? request = null)
+    {
+        try
+        {
+            var issue = await _issuesService.ReopenIssueAsync(owner, repo, issueNumber, request?.Comment);
+
+            return Ok(new
+            {
+                id = issue.Id,
+                number = issue.Number,
+                title = issue.Title,
+                state = issue.State.ToString().ToLower(),
+                reopenedAt = issue.UpdatedAt,
+                htmlUrl = issue.HtmlUrl
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to reopen issue: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 更新 Issue 评论
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="commentId">评论ID</param>
+    /// <param name="request">更新请求</param>
+    /// <returns>更新后的评论</returns>
+    [HttpPatch("{owner}/{repo}/comments/{commentId}")]
+    public async Task<IActionResult> UpdateIssueComment(
+        string owner,
+        string repo,
+        long commentId,
+        [FromBody] UpdateCommentRequest request)
+    {
+        if (string.IsNullOrEmpty(request.Body))
+        {
+            return BadRequest("Comment body is required");
+        }
+
+        try
+        {
+            var comment = await _issuesService.UpdateIssueCommentAsync(owner, repo, commentId, request.Body);
+
+            return Ok(new
+            {
+                id = comment.Id,
+                body = comment.Body,
+                user = new
+                {
+                    login = comment.User.Login,
+                    avatarUrl = comment.User.AvatarUrl
+                },
+                updatedAt = comment.UpdatedAt,
+                htmlUrl = comment.HtmlUrl
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to update comment: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 删除 Issue 评论
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="commentId">评论ID</param>
+    /// <returns>删除结果</returns>
+    [HttpDelete("{owner}/{repo}/comments/{commentId}")]
+    public async Task<IActionResult> DeleteIssueComment(
+        string owner,
+        string repo,
+        long commentId)
+    {
+        try
+        {
+            await _issuesService.DeleteIssueCommentAsync(owner, repo, commentId);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to delete comment: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 为 Issue 添加标签
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="issueNumber">Issue 编号</param>
+    /// <param name="request">标签请求</param>
+    /// <returns>更新后的标签列表</returns>
+    [HttpPost("{owner}/{repo}/{issueNumber}/labels")]
+    public async Task<IActionResult> AddLabelsToIssue(
+        string owner,
+        string repo,
+        int issueNumber,
+        [FromBody] LabelsRequest request)
+    {
+        if (request.Labels == null || request.Labels.Length == 0)
+        {
+            return BadRequest("Labels are required");
+        }
+
+        try
+        {
+            var labels = await _issuesService.AddLabelsToIssueAsync(owner, repo, issueNumber, request.Labels);
+
+            return Ok(labels.Select(l => new { name = l.Name, color = l.Color, description = l.Description }));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to add labels: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 从 Issue 移除标签
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="issueNumber">Issue 编号</param>
+    /// <param name="labelName">标签名称</param>
+    /// <returns>剩余标签列表</returns>
+    [HttpDelete("{owner}/{repo}/{issueNumber}/labels/{labelName}")]
+    public async Task<IActionResult> RemoveLabelFromIssue(
+        string owner,
+        string repo,
+        int issueNumber,
+        string labelName)
+    {
+        try
+        {
+            var labels = await _issuesService.RemoveLabelFromIssueAsync(owner, repo, issueNumber, labelName);
+
+            return Ok(labels.Select(l => new { name = l.Name, color = l.Color, description = l.Description }));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to remove label: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 清除 Issue 的所有标签
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="issueNumber">Issue 编号</param>
+    /// <returns>操作结果</returns>
+    [HttpDelete("{owner}/{repo}/{issueNumber}/labels")]
+    public async Task<IActionResult> ClearLabelsFromIssue(
+        string owner,
+        string repo,
+        int issueNumber)
+    {
+        try
+        {
+            await _issuesService.ClearLabelsFromIssueAsync(owner, repo, issueNumber);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to clear labels: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 批量为多个 Issue 添加标签
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="request">批量标签请求</param>
+    /// <returns>操作结果</returns>
+    [HttpPost("{owner}/{repo}/batch/labels")]
+    public async Task<IActionResult> AddLabelsToBatchIssues(
+        string owner,
+        string repo,
+        [FromBody] BatchLabelsRequest request)
+    {
+        if (request.IssueNumbers == null || request.IssueNumbers.Length == 0)
+        {
+            return BadRequest("Issue numbers are required");
+        }
+
+        if (request.Labels == null || request.Labels.Length == 0)
+        {
+            return BadRequest("Labels are required");
+        }
+
+        try
+        {
+            await _issuesService.AddLabelsToBatchIssuesAsync(owner, repo, request.IssueNumbers, request.Labels);
+
+            return Ok(new { 
+                message = $"Successfully added labels to {request.IssueNumbers.Length} issues",
+                processedIssues = request.IssueNumbers.Length
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to add labels to batch issues: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 批量关闭多个 Issue
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="request">批量关闭请求</param>
+    /// <returns>操作结果</returns>
+    [HttpPost("{owner}/{repo}/batch/close")]
+    public async Task<IActionResult> CloseBatchIssues(
+        string owner,
+        string repo,
+        [FromBody] BatchCloseRequest request)
+    {
+        if (request.IssueNumbers == null || request.IssueNumbers.Length == 0)
+        {
+            return BadRequest("Issue numbers are required");
+        }
+
+        try
+        {
+            await _issuesService.CloseBatchIssuesAsync(owner, repo, request.IssueNumbers, request.Comment);
+
+            return Ok(new { 
+                message = $"Successfully closed {request.IssueNumbers.Length} issues",
+                closedIssues = request.IssueNumbers.Length
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to close batch issues: {ex.Message}");
+        }
+    }
+
     private static ItemStateFilter ParseStateFilter(string state)
     {
         return state.ToLower() switch
@@ -323,6 +655,19 @@ public class GitHubIssuesController : ControllerBase
             "closed" => ItemStateFilter.Closed,
             "all" => ItemStateFilter.All,
             _ => ItemStateFilter.Open
+        };
+    }
+
+    private static ItemState? ParseItemState(string? state)
+    {
+        if (string.IsNullOrEmpty(state))
+            return null;
+            
+        return state.ToLower() switch
+        {
+            "open" => ItemState.Open,
+            "closed" => ItemState.Closed,
+            _ => null
         };
     }
 }
@@ -367,4 +712,111 @@ public class CreateCommentRequest
     /// 评论内容
     /// </summary>
     public string Body { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// 更新 Issue 的请求模型
+/// </summary>
+public class UpdateIssueRequest
+{
+    /// <summary>
+    /// Issue 标题
+    /// </summary>
+    public string? Title { get; set; }
+    
+    /// <summary>
+    /// Issue 内容
+    /// </summary>
+    public string? Body { get; set; }
+    
+    /// <summary>
+    /// Issue 状态：open, closed
+    /// </summary>
+    public string? State { get; set; }
+    
+    /// <summary>
+    /// 标签列表
+    /// </summary>
+    public string[]? Labels { get; set; }
+    
+    /// <summary>
+    /// 指派人员列表
+    /// </summary>
+    public string[]? Assignees { get; set; }
+}
+
+/// <summary>
+/// 关闭 Issue 的请求模型
+/// </summary>
+public class CloseIssueRequest
+{
+    /// <summary>
+    /// 关闭时添加的评论
+    /// </summary>
+    public string? Comment { get; set; }
+}
+
+/// <summary>
+/// 重新打开 Issue 的请求模型
+/// </summary>
+public class ReopenIssueRequest
+{
+    /// <summary>
+    /// 重新打开时添加的评论
+    /// </summary>
+    public string? Comment { get; set; }
+}
+
+/// <summary>
+/// 更新评论的请求模型
+/// </summary>
+public class UpdateCommentRequest
+{
+    /// <summary>
+    /// 新的评论内容
+    /// </summary>
+    public string Body { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// 标签操作请求模型
+/// </summary>
+public class LabelsRequest
+{
+    /// <summary>
+    /// 标签列表
+    /// </summary>
+    public string[] Labels { get; set; } = Array.Empty<string>();
+}
+
+/// <summary>
+/// 批量标签操作请求模型
+/// </summary>
+public class BatchLabelsRequest
+{
+    /// <summary>
+    /// Issue 编号列表
+    /// </summary>
+    public int[] IssueNumbers { get; set; } = Array.Empty<int>();
+    
+    /// <summary>
+    /// 标签列表
+    /// </summary>
+    public string[] Labels { get; set; } = Array.Empty<string>();
+}
+
+/// <summary>
+/// 批量关闭 Issue 请求模型
+/// </summary>
+public class BatchCloseRequest
+{
+    /// <summary>
+    /// Issue 编号列表
+    /// </summary>
+    public int[] IssueNumbers { get; set; } = Array.Empty<int>();
+    
+    /// <summary>
+    /// 关闭时添加的评论
+    /// </summary>
+    public string? Comment { get; set; }
 }
