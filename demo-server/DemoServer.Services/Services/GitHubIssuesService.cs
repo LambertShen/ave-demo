@@ -65,7 +65,7 @@ public class GitHubIssuesService : IGitHubIssuesService
         {
             State = state,
             Since = since,
-            Filter = IssueFilter.Created // 只获取用户创建的 Issues
+            Filter = IssueFilter.Created // Only get issues created by the user
         };
 
         var options = new ApiOptions
