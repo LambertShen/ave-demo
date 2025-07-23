@@ -225,6 +225,250 @@ public class GitHubTimeLineController : ControllerBase
 
     #endregion
 
+    #region Timeline Event Details
+
+    /// <summary>
+    /// 获取时间线事件的详细信息
+    /// </summary>
+    [HttpGet("events/{owner}/{repo}/details")]
+    public async Task<IActionResult> GetTimelineEventDetails(
+        string owner,
+        string repo,
+        [FromQuery] string eventType,
+        [FromQuery] string? commitId = null,
+        [FromQuery] long? commentId = null,
+        [FromQuery] string? labelName = null,
+        [FromQuery] int? milestoneNumber = null,
+        [FromQuery] string? username = null)
+    {
+        try
+        {
+            object? details = eventType.ToLower() switch
+            {
+                "committed" when !string.IsNullOrEmpty(commitId) => 
+                    await _timelineService.GetCommitDetailsAsync(owner, repo, commitId),
+                
+                "commented" when commentId.HasValue => 
+                    await _timelineService.GetCommentDetailsAsync(owner, repo, commentId.Value),
+                
+                "labeled" or "unlabeled" when !string.IsNullOrEmpty(labelName) => 
+                    await _timelineService.GetLabelDetailsAsync(owner, repo, labelName),
+                
+                "milestoned" or "demilestoned" when milestoneNumber.HasValue => 
+                    await _timelineService.GetMilestoneDetailsAsync(owner, repo, milestoneNumber.Value),
+                
+                "assigned" or "unassigned" or "reviewed" or "review_requested" when !string.IsNullOrEmpty(username) => 
+                    await _timelineService.GetUserDetailsAsync(username),
+                
+                _ => null
+            };
+
+            if (details == null)
+            {
+                return NotFound(new { error = $"无法获取事件类型 '{eventType}' 的详细信息" });
+            }
+
+            return Ok(new
+            {
+                eventType,
+                details
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = $"获取事件详细信息失败: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// 获取提交详细信息
+    /// </summary>
+    [HttpGet("commit/{owner}/{repo}/{commitSha}")]
+    public async Task<IActionResult> GetCommitDetails(string owner, string repo, string commitSha)
+    {
+        try
+        {
+            var commit = await _timelineService.GetCommitDetailsAsync(owner, repo, commitSha);
+            
+            if (commit == null)
+            {
+                return NotFound(new { error = "提交不存在" });
+            }
+
+            return Ok(new
+            {
+                sha = commit.Sha,
+                message = commit.Commit.Message,
+                author = new
+                {
+                    name = commit.Commit.Author.Name,
+                    email = commit.Commit.Author.Email,
+                    date = commit.Commit.Author.Date
+                },
+                committer = new
+                {
+                    name = commit.Commit.Committer.Name,
+                    email = commit.Commit.Committer.Email,
+                    date = commit.Commit.Committer.Date
+                },
+                stats = commit.Stats != null ? new
+                {
+                    total = commit.Stats.Total,
+                    additions = commit.Stats.Additions,
+                    deletions = commit.Stats.Deletions
+                } : null,
+                url = commit.HtmlUrl,
+                filesChanged = commit.Files?.Count ?? 0
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = $"获取提交详细信息失败: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// 获取评论详细信息
+    /// </summary>
+    [HttpGet("comment/{owner}/{repo}/{commentId}")]
+    public async Task<IActionResult> GetCommentDetails(string owner, string repo, long commentId)
+    {
+        try
+        {
+            var comment = await _timelineService.GetCommentDetailsAsync(owner, repo, commentId);
+            
+            if (comment == null)
+            {
+                return NotFound(new { error = "评论不存在" });
+            }
+
+            return Ok(new
+            {
+                id = comment.Id,
+                body = comment.Body,
+                user = new
+                {
+                    login = comment.User.Login,
+                    avatarUrl = comment.User.AvatarUrl,
+                    htmlUrl = comment.User.HtmlUrl
+                },
+                createdAt = comment.CreatedAt,
+                updatedAt = comment.UpdatedAt,
+                htmlUrl = comment.HtmlUrl
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = $"获取评论详细信息失败: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// 获取标签详细信息
+    /// </summary>
+    [HttpGet("label/{owner}/{repo}/{labelName}")]
+    public async Task<IActionResult> GetLabelDetails(string owner, string repo, string labelName)
+    {
+        try
+        {
+            var label = await _timelineService.GetLabelDetailsAsync(owner, repo, labelName);
+            
+            if (label == null)
+            {
+                return NotFound(new { error = "标签不存在" });
+            }
+
+            return Ok(new
+            {
+                name = label.Name,
+                color = label.Color,
+                description = label.Description,
+                @default = label.Default
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = $"获取标签详细信息失败: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// 获取里程碑详细信息
+    /// </summary>
+    [HttpGet("milestone/{owner}/{repo}/{milestoneNumber}")]
+    public async Task<IActionResult> GetMilestoneDetails(string owner, string repo, int milestoneNumber)
+    {
+        try
+        {
+            var milestone = await _timelineService.GetMilestoneDetailsAsync(owner, repo, milestoneNumber);
+            
+            if (milestone == null)
+            {
+                return NotFound(new { error = "里程碑不存在" });
+            }
+
+            return Ok(new
+            {
+                number = milestone.Number,
+                title = milestone.Title,
+                description = milestone.Description,
+                state = milestone.State.ToString().ToLower(),
+                openIssues = milestone.OpenIssues,
+                closedIssues = milestone.ClosedIssues,
+                createdAt = milestone.CreatedAt,
+                updatedAt = milestone.UpdatedAt,
+                dueOn = milestone.DueOn,
+                htmlUrl = milestone.HtmlUrl
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = $"获取里程碑详细信息失败: {ex.Message}" });
+        }
+    }
+
+    /// <summary>
+    /// 获取用户详细信息
+    /// </summary>
+    [HttpGet("user/{username}")]
+    public async Task<IActionResult> GetUserDetails(string username)
+    {
+        try
+        {
+            var user = await _timelineService.GetUserDetailsAsync(username);
+            
+            if (user == null)
+            {
+                return NotFound(new { error = "用户不存在" });
+            }
+
+            return Ok(new
+            {
+                login = user.Login,
+                name = user.Name,
+                email = user.Email,
+                avatarUrl = user.AvatarUrl,
+                htmlUrl = user.HtmlUrl,
+                bio = user.Bio,
+                company = user.Company,
+                location = user.Location,
+                blog = user.Blog,
+                publicRepos = user.PublicRepos,
+                publicGists = user.PublicGists,
+                followers = user.Followers,
+                following = user.Following,
+                createdAt = user.CreatedAt,
+                updatedAt = user.UpdatedAt
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = $"获取用户详细信息失败: {ex.Message}" });
+        }
+    }
+
+    #endregion
+
     #region Helper Methods
 
     /// <summary>

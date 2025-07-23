@@ -261,4 +261,75 @@ public interface IGitHubTimeLineService
         PullRequestMergeMethod mergeMethod = PullRequestMergeMethod.Merge);
 
     #endregion
+
+    #region Timeline Event Details
+
+    /// <summary>
+    /// 根据时间线事件类型获取详细信息
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="eventInfo">时间线事件信息</param>
+    /// <returns>事件详细信息</returns>
+    Task<object?> GetTimelineEventDetailsAsync(
+        string owner,
+        string repo,
+        TimelineEventInfo eventInfo);
+
+    /// <summary>
+    /// 获取提交事件详细信息
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="commitSha">提交 SHA</param>
+    /// <returns>提交详细信息</returns>
+    Task<GitHubCommit?> GetCommitDetailsAsync(
+        string owner,
+        string repo,
+        string commitSha);
+
+    /// <summary>
+    /// 获取评论事件详细信息
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="commentId">评论 ID</param>
+    /// <returns>评论详细信息</returns>
+    Task<IssueComment?> GetCommentDetailsAsync(
+        string owner,
+        string repo,
+        long commentId);
+
+    /// <summary>
+    /// 获取标签事件详细信息
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="labelName">标签名称</param>
+    /// <returns>标签详细信息</returns>
+    Task<Label?> GetLabelDetailsAsync(
+        string owner,
+        string repo,
+        string labelName);
+
+    /// <summary>
+    /// 获取里程碑事件详细信息
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="repo">仓库名称</param>
+    /// <param name="milestoneNumber">里程碑编号</param>
+    /// <returns>里程碑详细信息</returns>
+    Task<Milestone?> GetMilestoneDetailsAsync(
+        string owner,
+        string repo,
+        int milestoneNumber);
+
+    /// <summary>
+    /// 获取用户详细信息
+    /// </summary>
+    /// <param name="username">用户名</param>
+    /// <returns>用户详细信息</returns>
+    Task<User?> GetUserDetailsAsync(string username);
+
+    #endregion
 }

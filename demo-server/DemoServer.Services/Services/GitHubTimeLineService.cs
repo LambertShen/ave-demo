@@ -252,4 +252,143 @@ public class GitHubTimeLineService : IGitHubTimeLineService
     }
 
     #endregion
+
+    #region Timeline Event Details
+
+    public async Task<object?> GetTimelineEventDetailsAsync(
+        string owner,
+        string repo,
+        TimelineEventInfo eventInfo)
+    {
+        try
+        {
+            var eventType = GetSafeEventName(eventInfo.Event);
+            
+            return eventType.ToLower() switch
+            {
+                "committed" when !string.IsNullOrEmpty(eventInfo.CommitId) => 
+                    await GetCommitDetailsAsync(owner, repo, eventInfo.CommitId),
+                
+                "commented" when eventInfo.Id > 0 => 
+                    await GetCommentDetailsAsync(owner, repo, eventInfo.Id),
+                
+                "labeled" or "unlabeled" when eventInfo.Label != null => 
+                    await GetLabelDetailsAsync(owner, repo, eventInfo.Label.Name),
+                
+                "milestoned" or "demilestoned" when eventInfo.Milestone != null => 
+                    await GetMilestoneDetailsAsync(owner, repo, eventInfo.Milestone.Number),
+                
+                "assigned" or "unassigned" when eventInfo.Assignee != null => 
+                    await GetUserDetailsAsync(eventInfo.Assignee.Login),
+                
+                _ => new
+                {
+                    eventType,
+                    actor = eventInfo.Actor,
+                    createdAt = eventInfo.CreatedAt
+                }
+            };
+        }
+        catch (Exception)
+        {
+            return new
+            {
+                eventType = GetSafeEventName(eventInfo.Event),
+                actor = eventInfo.Actor,
+                createdAt = eventInfo.CreatedAt,
+                error = "Failed to get detailed information"
+            };
+        }
+    }
+
+    public async Task<GitHubCommit?> GetCommitDetailsAsync(
+        string owner,
+        string repo,
+        string commitSha)
+    {
+        try
+        {
+            var client = _oauthService.CreateClientFromAccessTokenAsync();
+            return await client.Repository.Commit.Get(owner, repo, commitSha);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    public async Task<IssueComment?> GetCommentDetailsAsync(
+        string owner,
+        string repo,
+        long commentId)
+    {
+        try
+        {
+            var client = _oauthService.CreateClientFromAccessTokenAsync();
+            return await client.Issue.Comment.Get(owner, repo, commentId);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    public async Task<Label?> GetLabelDetailsAsync(
+        string owner,
+        string repo,
+        string labelName)
+    {
+        try
+        {
+            var client = _oauthService.CreateClientFromAccessTokenAsync();
+            return await client.Issue.Labels.Get(owner, repo, labelName);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    public async Task<Milestone?> GetMilestoneDetailsAsync(
+        string owner,
+        string repo,
+        int milestoneNumber)
+    {
+        try
+        {
+            var client = _oauthService.CreateClientFromAccessTokenAsync();
+            return await client.Issue.Milestone.Get(owner, repo, milestoneNumber);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    public async Task<User?> GetUserDetailsAsync(string username)
+    {
+        try
+        {
+            var client = _oauthService.CreateClientFromAccessTokenAsync();
+            return await client.User.Get(username);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    private static string GetSafeEventName(StringEnum<EventInfoState> eventEnum)
+    {
+        try
+        {
+            return eventEnum.ToString();
+        }
+        catch (ArgumentException)
+        {
+            return eventEnum.StringValue ?? "unknown";
+        }
+    }
+
+    #endregion
 }
