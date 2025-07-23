@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using DemoServer.Services.Interfaces;
+using DemoServer.Api.Models;
 using Octokit;
 
 namespace DemoServer.Api.Controllers;
@@ -166,7 +167,8 @@ public class GitHubPullRequestController : ControllerBase
                 deletions = pullRequest.Deletions,
                 changed_files = pullRequest.ChangedFiles,
                 commits = pullRequest.Commits,
-                comments = pullRequest.Comments
+                comments = pullRequest.Comments,
+                milestone = pullRequest.Milestone,
             };
 
             return Ok(result);
@@ -665,49 +667,6 @@ public class GitHubPullRequestController : ControllerBase
             "comment" => PullRequestReviewEvent.Comment,
             _ => PullRequestReviewEvent.Comment
         };
-    }
-
-    #endregion
-
-    #region Request Models
-
-    public class CreatePullRequestRequest
-    {
-        public string Title { get; set; } = string.Empty;
-        public string Head { get; set; } = string.Empty;
-        public string Base { get; set; } = string.Empty;
-        public string? Body { get; set; }
-        public bool Draft { get; set; } = false;
-        public bool MaintainerCanModify { get; set; } = true;
-    }
-
-    public class UpdatePullRequestRequest
-    {
-        public string? Title { get; set; }
-        public string? Body { get; set; }
-        public string? State { get; set; }
-        public string? Base { get; set; }
-        public bool? MaintainerCanModify { get; set; }
-    }
-
-    public class MergePullRequestRequest
-    {
-        public string? CommitMessage { get; set; }
-        public string? CommitTitle { get; set; }
-        public string MergeMethod { get; set; } = "merge";
-    }
-
-    public class CreatePullRequestReviewRequest
-    {
-        public string? CommitId { get; set; }
-        public string? Body { get; set; }
-        public string Event { get; set; } = "comment";
-    }
-
-    public class RequestPullRequestReviewRequest
-    {
-        public IReadOnlyList<string>? Reviewers { get; set; }
-        public IReadOnlyList<string>? TeamReviewers { get; set; }
     }
 
     #endregion

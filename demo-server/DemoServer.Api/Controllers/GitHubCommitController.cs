@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using DemoServer.Services.Interfaces;
+using DemoServer.Api.Models;
 using Octokit;
 
 namespace DemoServer.Api.Controllers;
@@ -910,82 +911,6 @@ public class GitHubCommitController : ControllerBase
             "failure" => CommitState.Failure,
             _ => CommitState.Pending
         };
-    }
-
-    #endregion
-
-    #region Request Models
-
-    public class CreateCommitRequest
-    {
-        public string Message { get; set; } = string.Empty;
-        public string Tree { get; set; } = string.Empty;
-        public IEnumerable<string>? Parents { get; set; }
-        public SignatureRequest? Author { get; set; }
-        public SignatureRequest? Committer { get; set; }
-    }
-
-    public class SignatureRequest
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public DateTimeOffset? Date { get; set; }
-    }
-
-    public class CreateCommitStatusRequest
-    {
-        public string State { get; set; } = "pending";
-        public string? TargetUrl { get; set; }
-        public string? Description { get; set; }
-        public string? Context { get; set; }
-    }
-
-    public class CreateCommitCommentRequest
-    {
-        public string Body { get; set; } = string.Empty;
-        public string? Path { get; set; }
-        public int? Line { get; set; }
-    }
-
-    public class UpdateCommitCommentRequest
-    {
-        public string Body { get; set; } = string.Empty;
-    }
-
-    public class CommitFilesRequest
-    {
-        public Dictionary<string, string> FileChanges { get; set; } = new();
-        public List<string> FilesToDelete { get; set; } = new();
-        public string CommitMessage { get; set; } = string.Empty;
-        public string Branch { get; set; } = "main";
-        public CommitAuthorRequest? Author { get; set; }
-        public CommitAuthorRequest? Committer { get; set; }
-    }
-
-    public class CommitSingleFileRequest
-    {
-        public string FilePath { get; set; } = string.Empty;
-        public string FileContent { get; set; } = string.Empty;
-        public string CommitMessage { get; set; } = string.Empty;
-        public string? Branch { get; set; } = "main";
-        public CommitAuthorRequest? Author { get; set; }
-        public CommitAuthorRequest? Committer { get; set; }
-    }
-
-    public class DeleteFilesRequest
-    {
-        public List<string> FilePaths { get; set; } = new();
-        public string CommitMessage { get; set; } = string.Empty;
-        public string? Branch { get; set; } = "main";
-        public CommitAuthorRequest? Author { get; set; }
-        public CommitAuthorRequest? Committer { get; set; }
-    }
-
-    public class CommitAuthorRequest
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public DateTimeOffset? Date { get; set; }
     }
 
     #endregion

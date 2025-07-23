@@ -31,6 +31,9 @@ public static class ServiceCollectionExtensions
         // 注册 GitHub Commit 服务
         services.AddScoped<IGitHubCommitService, GitHubCommitService>();
         
+        // 注册 GitHub Timeline 服务
+        services.AddScoped<IGitHubTimeLineService, GitHubTimeLineService>();
+        
         return services;
     }
 }
