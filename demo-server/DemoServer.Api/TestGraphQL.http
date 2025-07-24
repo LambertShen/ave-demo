@@ -1,0 +1,30 @@
+### 测试GitHub GraphQL API权限
+
+@token = YOUR_GITHUB_TOKEN_HERE
+
+### 测试基本用户信息
+POST https://api.github.com/graphql
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "query": "query { viewer { login } }"
+}
+
+### 测试项目权限
+POST https://api.github.com/graphql
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "query": "query { viewer { login projectsV2(first: 1) { totalCount } } }"
+}
+
+### 测试获取项目列表
+POST https://api.github.com/graphql
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "query": "query { viewer { login projectsV2(first: 10) { totalCount nodes { id title } } } }"
+}
