@@ -250,3 +250,281 @@ public class DeleteProjectPayload
     [JsonProperty("projectV2")]
     public ProjectNode? ProjectV2 { get; set; }
 }
+
+// Project View Models
+public class ProjectView
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string ProjectId { get; set; } = string.Empty;
+    public int Number { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+    public string Layout { get; set; } = string.Empty; // TABLE, BOARD, ROADMAP
+    public List<ProjectViewField> Fields { get; set; } = new();
+    public ProjectViewFilter? Filter { get; set; }
+    public ProjectViewGroupBy? GroupBy { get; set; }
+    public List<ProjectViewSortBy> SortBy { get; set; } = new();
+}
+
+public class ProjectViewField
+{
+    public string FieldId { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public bool IsVisible { get; set; } = true;
+    public int Width { get; set; } = 200;
+}
+
+public class ProjectViewFilter
+{
+    public string? Query { get; set; }
+    public List<ProjectViewFilterCondition> Conditions { get; set; } = new();
+}
+
+public class ProjectViewFilterCondition
+{
+    public string FieldId { get; set; } = string.Empty;
+    public string Operator { get; set; } = string.Empty; // EQUALS, NOT_EQUALS, CONTAINS, etc.
+    public object? Value { get; set; }
+}
+
+public class ProjectViewGroupBy
+{
+    public string FieldId { get; set; } = string.Empty;
+    public string Direction { get; set; } = "ASC"; // ASC or DESC
+}
+
+public class ProjectViewSortBy
+{
+    public string FieldId { get; set; } = string.Empty;
+    public string Direction { get; set; } = "ASC"; // ASC or DESC
+}
+
+public class CreateProjectViewRequest
+{
+    public string ProjectId { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string Layout { get; set; } = "TABLE";
+}
+
+public class UpdateProjectViewRequest
+{
+    public string ViewId { get; set; } = string.Empty;
+    public string? Name { get; set; }
+    public string? Description { get; set; }
+    public string? Layout { get; set; }
+    public List<ProjectViewField>? Fields { get; set; }
+    public ProjectViewFilter? Filter { get; set; }
+    public ProjectViewGroupBy? GroupBy { get; set; }
+    public List<ProjectViewSortBy>? SortBy { get; set; }
+}
+
+// GraphQL Response Models for Views
+public class ProjectViewsResponse
+{
+    [JsonProperty("node")]
+    public ProjectWithViews? Node { get; set; }
+}
+
+public class ProjectWithViews
+{
+    [JsonProperty("views")]
+    public ProjectViewConnection Views { get; set; } = new();
+}
+
+public class ProjectViewConnection
+{
+    [JsonProperty("totalCount")]
+    public int TotalCount { get; set; }
+    
+    [JsonProperty("nodes")]
+    public List<ProjectViewNode> Nodes { get; set; } = new();
+    
+    [JsonProperty("pageInfo")]
+    public PageInfo PageInfo { get; set; } = new();
+}
+
+public class ProjectViewNode
+{
+    [JsonProperty("id")]
+    public string Id { get; set; } = string.Empty;
+    
+    [JsonProperty("name")]
+    public string Name { get; set; } = string.Empty;
+    
+    [JsonProperty("description")]
+    public string? Description { get; set; }
+    
+    [JsonProperty("number")]
+    public int Number { get; set; }
+    
+    [JsonProperty("createdAt")]
+    public DateTimeOffset CreatedAt { get; set; }
+    
+    [JsonProperty("updatedAt")]
+    public DateTimeOffset UpdatedAt { get; set; }
+    
+    [JsonProperty("layout")]
+    public string Layout { get; set; } = string.Empty;
+    
+    [JsonProperty("filter")]
+    public string? Filter { get; set; }
+    
+    [JsonProperty("groupBy")]
+    public List<ProjectViewGroupByNode>? GroupBy { get; set; }
+    
+    [JsonProperty("sortBy")]
+    public List<ProjectViewSortByNode>? SortBy { get; set; }
+    
+    [JsonProperty("fields")]
+    public ProjectViewFieldConnection? Fields { get; set; }
+}
+
+public class ProjectViewFieldConnection
+{
+    [JsonProperty("nodes")]
+    public List<ProjectViewFieldNode> Nodes { get; set; } = new();
+}
+
+public class ProjectViewFieldNode
+{
+    [JsonProperty("field")]
+    public ProjectFieldRef Field { get; set; } = new();
+    
+    [JsonProperty("isVisible")]
+    public bool IsVisible { get; set; }
+    
+    [JsonProperty("width")]
+    public int Width { get; set; }
+}
+
+public class ProjectFieldRef
+{
+    [JsonProperty("id")]
+    public string Id { get; set; } = string.Empty;
+    
+    [JsonProperty("name")]
+    public string Name { get; set; } = string.Empty;
+}
+
+public class ProjectViewGroupByNode
+{
+    [JsonProperty("field")]
+    public ProjectFieldRef Field { get; set; } = new();
+    
+    [JsonProperty("direction")]
+    public string Direction { get; set; } = string.Empty;
+}
+
+public class ProjectViewSortByNode
+{
+    [JsonProperty("field")]
+    public ProjectFieldRef Field { get; set; } = new();
+    
+    [JsonProperty("direction")]
+    public string Direction { get; set; } = string.Empty;
+}
+
+public class CreateProjectViewResponse
+{
+    [JsonProperty("createProjectV2View")]
+    public CreateProjectViewPayload CreateProjectV2View { get; set; } = new();
+}
+
+public class CreateProjectViewPayload
+{
+    [JsonProperty("view")]
+    public ProjectViewNode? View { get; set; }
+}
+
+public class UpdateProjectViewResponse
+{
+    [JsonProperty("updateProjectV2View")]
+    public UpdateProjectViewPayload UpdateProjectV2View { get; set; } = new();
+}
+
+public class UpdateProjectViewPayload
+{
+    [JsonProperty("view")]
+    public ProjectViewNode? View { get; set; }
+}
+
+public class DeleteProjectViewResponse
+{
+    [JsonProperty("deleteProjectV2View")]
+    public DeleteProjectViewPayload DeleteProjectV2View { get; set; } = new();
+}
+
+public class DeleteProjectViewPayload
+{
+    [JsonProperty("deletedViewId")]
+    public string? DeletedViewId { get; set; }
+}
+
+// Project View Field Models
+public class ProjectViewFieldConfiguration
+{
+    public string ViewId { get; set; } = string.Empty;
+    public string FieldId { get; set; } = string.Empty;
+    public bool IsVisible { get; set; } = true;
+    public int Width { get; set; } = 200;
+    public int Position { get; set; } = 0;
+}
+
+public class CreateProjectViewFieldRequest
+{
+    public string ViewId { get; set; } = string.Empty;
+    public string FieldId { get; set; } = string.Empty;
+    public bool IsVisible { get; set; } = true;
+    public int Width { get; set; } = 200;
+}
+
+public class UpdateProjectViewFieldRequest
+{
+    public string ViewId { get; set; } = string.Empty;
+    public string FieldId { get; set; } = string.Empty;
+    public bool? IsVisible { get; set; }
+    public int? Width { get; set; }
+}
+
+public class ProjectViewFieldInfo
+{
+    public string ViewId { get; set; } = string.Empty;
+    public string FieldId { get; set; } = string.Empty;
+    public string FieldName { get; set; } = string.Empty;
+    public string DataType { get; set; } = string.Empty;
+    public bool IsVisible { get; set; } = true;
+    public int Width { get; set; } = 200;
+    public bool IsBuiltIn { get; set; } = false;
+}
+
+// Project View Field Sort/Group Models
+public class CreateProjectViewSortRequest
+{
+    public string ViewId { get; set; } = string.Empty;
+    public string FieldId { get; set; } = string.Empty;
+    public string Direction { get; set; } = "ASC"; // ASC or DESC
+}
+
+public class UpdateProjectViewSortRequest
+{
+    public string ViewId { get; set; } = string.Empty;
+    public string FieldId { get; set; } = string.Empty;
+    public string? Direction { get; set; }
+}
+
+public class CreateProjectViewGroupRequest
+{
+    public string ViewId { get; set; } = string.Empty;
+    public string FieldId { get; set; } = string.Empty;
+    public string Direction { get; set; } = "ASC"; // ASC or DESC
+}
+
+public class UpdateProjectViewGroupRequest
+{
+    public string ViewId { get; set; } = string.Empty;
+    public string FieldId { get; set; } = string.Empty;
+    public string? Direction { get; set; }
+}
