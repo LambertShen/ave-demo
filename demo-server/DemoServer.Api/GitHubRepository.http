@@ -1,0 +1,108 @@
+### GitHub Repository API 测试
+
+@baseUrl = http://localhost:5000
+@token = {{$dotenv TOKEN}}
+
+### 1. 获取当前用户的仓库列表
+GET {{baseUrl}}/api/GitHubRepository
+Authorization: Bearer {{token}}
+
+### 2. 获取指定用户的仓库列表
+GET {{baseUrl}}/api/GitHubRepository?username=octocat&pageSize=10&page=1
+Authorization: Bearer {{token}}
+
+### 3. 获取组织的仓库列表
+GET {{baseUrl}}/api/GitHubRepository/organization/github
+Authorization: Bearer {{token}}
+
+### 4. 根据所有者和仓库名获取仓库详情
+GET {{baseUrl}}/api/GitHubRepository/octocat/Hello-World
+Authorization: Bearer {{token}}
+
+### 5. 根据仓库 ID 获取仓库详情
+GET {{baseUrl}}/api/GitHubRepository/1296269
+Authorization: Bearer {{token}}
+
+### 6. 创建新仓库
+POST {{baseUrl}}/api/GitHubRepository
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "test-repo-from-api",
+    "description": "Test repository created from API",
+    "private": false,
+    "hasIssues": true,
+    "hasProjects": true,
+    "hasWiki": true,
+    "autoInit": true,
+    "gitignoreTemplate": "VisualStudio",
+    "licenseTemplate": "mit"
+}
+
+### 7. 在组织下创建新仓库
+POST {{baseUrl}}/api/GitHubRepository/organization/myorg
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "org-test-repo",
+    "description": "Test repository for organization",
+    "private": false,
+    "hasIssues": true,
+    "hasProjects": true,
+    "hasWiki": true,
+    "autoInit": true
+}
+
+### 8. 更新仓库信息
+PUT {{baseUrl}}/api/GitHubRepository/owner/repo-name
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "name": "updated-repo-name",
+    "description": "Updated repository description",
+    "private": false,
+    "hasIssues": true,
+    "hasProjects": true,
+    "hasWiki": true
+}
+
+### 9. Fork 仓库
+POST {{baseUrl}}/api/GitHubRepository/octocat/Hello-World/fork
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "organization": null,
+    "defaultBranchOnly": false
+}
+
+### 10. 搜索仓库
+GET {{baseUrl}}/api/GitHubRepository/search?query=language:csharp+stars:>100
+Authorization: Bearer {{token}}
+
+### 11. 获取仓库的分支列表
+GET {{baseUrl}}/api/GitHubRepository/octocat/Hello-World/branches
+Authorization: Bearer {{token}}
+
+### 12. 获取仓库的标签列表
+GET {{baseUrl}}/api/GitHubRepository/octocat/Hello-World/tags
+Authorization: Bearer {{token}}
+
+### 13. 获取仓库的协作者列表
+GET {{baseUrl}}/api/GitHubRepository/owner/repo-name/collaborators
+Authorization: Bearer {{token}}
+
+### 14. 添加协作者
+POST {{baseUrl}}/api/GitHubRepository/owner/repo-name/collaborators/username?permission=write
+Authorization: Bearer {{token}}
+
+### 15. 移除协作者
+DELETE {{baseUrl}}/api/GitHubRepository/owner/repo-name/collaborators/username
+Authorization: Bearer {{token}}
+
+### 16. 删除仓库 (谨慎使用)
+DELETE {{baseUrl}}/api/GitHubRepository/owner/repo-name
+Authorization: Bearer {{token}}

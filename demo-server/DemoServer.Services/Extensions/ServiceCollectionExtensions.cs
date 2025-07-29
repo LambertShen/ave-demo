@@ -37,6 +37,9 @@ public static class ServiceCollectionExtensions
         // 注册 GitHub Project 服务
         services.AddScoped<IGitHubProjectService, GitHubProjectService>();
         
+        // 注册 GitHub Repository 服务
+        services.AddScoped<IGitHubRepositoryService, GitHubRepositoryService>();
+        
         return services;
     }
 }
