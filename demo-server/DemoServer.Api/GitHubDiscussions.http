@@ -1,0 +1,152 @@
+### GitHub Discussions API 测试文件
+
+### 获取讨论列表
+GET {{host}}/api/GitHubDiscussions/microsoft/vscode?first=10&orderBy=UPDATED_AT&direction=DESC
+Authorization: Bearer {{token}}
+
+### 根据编号获取讨论详情
+GET {{host}}/api/GitHubDiscussions/microsoft/vscode/123
+Authorization: Bearer {{token}}
+
+### 根据ID获取讨论详情
+GET {{host}}/api/GitHubDiscussions/by-id/D_kwDOAJtVws4ASy-x
+Authorization: Bearer {{token}}
+
+### 创建新讨论
+POST {{host}}/api/GitHubDiscussions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "repositoryId": "MDEwOlJlcG9zaXRvcnkxNjIzODg0NQ==",
+  "title": "How to implement custom syntax highlighting?",
+  "body": "I'm trying to add custom syntax highlighting for a new language. What's the best approach?",
+  "categoryId": "DIC_kwDOAJtVws4CL3RI"
+}
+
+### 更新讨论
+PUT {{host}}/api/GitHubDiscussions/D_kwDOAJtVws4ASy-x
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Updated: How to implement custom syntax highlighting?",
+  "body": "I'm trying to add custom syntax highlighting for a new language. What's the best approach? Updated content..."
+}
+
+### 删除讨论
+DELETE {{host}}/api/GitHubDiscussions/D_kwDOAJtVws4ASy-x
+Authorization: Bearer {{token}}
+
+### 锁定讨论
+POST {{host}}/api/GitHubDiscussions/D_kwDOAJtVws4ASy-x/lock
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+"SPAM"
+
+### 解锁讨论
+POST {{host}}/api/GitHubDiscussions/D_kwDOAJtVws4ASy-x/unlock
+Authorization: Bearer {{token}}
+
+### 为讨论点赞
+POST {{host}}/api/GitHubDiscussions/D_kwDOAJtVws4ASy-x/upvote
+Authorization: Bearer {{token}}
+
+### 取消讨论点赞
+DELETE {{host}}/api/GitHubDiscussions/D_kwDOAJtVws4ASy-x/upvote
+Authorization: Bearer {{token}}
+
+### 获取讨论评论
+GET {{host}}/api/GitHubDiscussions/D_kwDOAJtVws4ASy-x/comments?first=10
+Authorization: Bearer {{token}}
+
+### 创建讨论评论
+POST {{host}}/api/GitHubDiscussions/comments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "discussionId": "D_kwDOAJtVws4ASy-x",
+  "body": "Great question! Here's how you can implement custom syntax highlighting..."
+}
+
+### 创建回复评论
+POST {{host}}/api/GitHubDiscussions/comments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "discussionId": "D_kwDOAJtVws4ASy-x",
+  "body": "I agree with the previous comment. Additionally...",
+  "replyToId": "DC_kwDOAJtVws4AZJm5A"
+}
+
+### 更新讨论评论
+PUT {{host}}/api/GitHubDiscussions/comments/DC_kwDOAJtVws4AZJm5A
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "body": "Updated comment: Great question! Here's how you can implement custom syntax highlighting..."
+}
+
+### 删除讨论评论
+DELETE {{host}}/api/GitHubDiscussions/comments/DC_kwDOAJtVws4AZJm5A
+Authorization: Bearer {{token}}
+
+### 为评论点赞
+POST {{host}}/api/GitHubDiscussions/comments/DC_kwDOAJtVws4AZJm5A/upvote
+Authorization: Bearer {{token}}
+
+### 取消评论点赞
+DELETE {{host}}/api/GitHubDiscussions/comments/DC_kwDOAJtVws4AZJm5A/upvote
+Authorization: Bearer {{token}}
+
+### 标记评论为答案
+POST {{host}}/api/GitHubDiscussions/comments/DC_kwDOAJtVws4AZJm5A/mark-as-answer
+Authorization: Bearer {{token}}
+
+### 取消标记评论为答案
+POST {{host}}/api/GitHubDiscussions/comments/DC_kwDOAJtVws4AZJm5A/unmark-as-answer
+Authorization: Bearer {{token}}
+
+### 获取讨论分类列表
+GET {{host}}/api/GitHubDiscussions/microsoft/vscode/categories
+Authorization: Bearer {{token}}
+
+### 根据ID获取讨论分类详情
+GET {{host}}/api/GitHubDiscussions/categories/DIC_kwDOAJtVws4CL3RI
+Authorization: Bearer {{token}}
+
+### 创建讨论分类
+POST {{host}}/api/GitHubDiscussions/categories
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "repositoryId": "MDEwOlJlcG9zaXRvcnkxNjIzODg0NQ==",
+  "name": "Extensions",
+  "description": "Questions and discussions about VS Code extensions",
+  "emoji": "🧩",
+  "isAnswerable": true
+}
+
+### 更新讨论分类
+PUT {{host}}/api/GitHubDiscussions/categories/DIC_kwDOAJtVws4CL3RI
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Extension Development",
+  "description": "Updated: Questions and discussions about VS Code extension development",
+  "emoji": "🔧"
+}
+
+### 删除讨论分类
+DELETE {{host}}/api/GitHubDiscussions/categories/DIC_kwDOAJtVws4CL3RI
+Authorization: Bearer {{token}}
+
+### 变量定义（在文件顶部）
+@host = http://localhost:5000
+@token = your_github_token_here

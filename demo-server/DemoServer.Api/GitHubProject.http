@@ -1,0 +1,105 @@
+### GitHub Project API 测试
+
+@baseUrl = http://localhost:5000
+
+### 获取当前用户的项目列表
+GET {{baseUrl}}/api/githubproject
+
+### 获取当前用户的项目列表（分页）
+GET {{baseUrl}}/api/githubproject?first=10&after=CURSOR_HERE
+
+### 获取组织的项目列表
+GET {{baseUrl}}/api/githubproject/organization/YOUR_ORG_NAME
+
+### 获取用户的项目列表
+GET {{baseUrl}}/api/githubproject/user/YOUR_USERNAME
+
+### 根据ID获取项目详情
+GET {{baseUrl}}/api/githubproject/PROJECT_ID_HERE
+
+### 创建新项目
+POST {{baseUrl}}/api/githubproject
+Content-Type: application/json
+
+{
+  "ownerId": "OWNER_ID_HERE",
+  "title": "测试项目",
+  "description": "这是一个通过API创建的测试项目",
+  "public": false
+}
+
+### 更新项目
+PUT {{baseUrl}}/api/githubproject/PROJECT_ID_HERE
+Content-Type: application/json
+
+{
+  "title": "更新后的项目标题",
+  "description": "更新后的项目描述",
+  "public": true
+}
+
+### 删除项目
+DELETE {{baseUrl}}/api/githubproject/PROJECT_ID_HERE
+
+### 获取所有者信息
+GET {{baseUrl}}/api/githubproject/owner/YOUR_USERNAME
+
+### 获取项目字段
+GET {{baseUrl}}/api/githubproject/PROJECT_ID_HERE/fields
+
+### 获取项目条目
+GET {{baseUrl}}/api/githubproject/PROJECT_ID_HERE/items
+
+### 获取项目条目（分页）
+GET {{baseUrl}}/api/githubproject/PROJECT_ID_HERE/items?first=10&after=CURSOR_HERE
+
+### 添加项目条目
+POST {{baseUrl}}/api/githubproject/PROJECT_ID_HERE/items
+Content-Type: application/json
+
+{
+  "contentId": "ISSUE_OR_PR_ID_HERE"
+}
+
+### 删除项目条目
+DELETE {{baseUrl}}/api/githubproject/PROJECT_ID_HERE/items/ITEM_ID_HERE
+
+#########################################
+# 完整的工作流示例
+#########################################
+
+### 1. 首先获取所有者ID（用于创建项目）
+GET {{baseUrl}}/api/githubproject/owner/YOUR_USERNAME
+
+### 2. 创建项目（使用上一步获取的所有者ID）
+POST {{baseUrl}}/api/githubproject
+Content-Type: application/json
+
+{
+  "ownerId": "MDQ6VXNlcjEyMzQ1Njc4",
+  "title": "API测试项目",
+  "description": "通过GitHub Project API创建的测试项目",
+  "public": false
+}
+
+### 3. 获取项目详情（使用上一步返回的项目ID）
+GET {{baseUrl}}/api/githubproject/PVT_kwDOABcdefghijklmnop123
+
+### 4. 获取项目字段
+GET {{baseUrl}}/api/githubproject/PVT_kwDOABcdefghijklmnop123/fields
+
+### 5. 获取项目条目
+GET {{baseUrl}}/api/githubproject/PVT_kwDOABcdefghijklmnop123/items
+
+### 6. 更新项目
+PUT {{baseUrl}}/api/githubproject/PVT_kwDOABcdefghijklmnop123
+Content-Type: application/json
+
+{
+  "title": "更新后的API测试项目",
+  "description": "这个项目已经被更新了",
+  "public": true
+}
+
+### 7. 最后删除项目（可选）
+# DELETE {{baseUrl}}/api/githubproject/PVT_kwDOABcdefghijklmnop123

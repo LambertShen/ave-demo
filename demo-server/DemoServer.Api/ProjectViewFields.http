@@ -1,0 +1,124 @@
+### Project View Fields Tests
+@baseUrl = http://localhost:5000/api/github/project-view-fields
+
+### Get all fields for a project view (use a valid view ID from your GitHub project)
+# First you need to get a real view ID from the ProjectViews.http test
+# Replace this with an actual view ID from your GitHub project
+GET {{baseUrl}}/VIEW_ID_HERE/fields
+Content-Type: application/json
+
+### Example using project views endpoint to get view IDs first
+# Use this to get actual view IDs, then use one in the field tests above
+GET http://localhost:5000/api/github/project-views/PROJECT_ID_HERE/views
+Content-Type: application/json
+
+### Update a field configuration in a project view
+PUT {{baseUrl}}/update
+Content-Type: application/json
+
+{
+  "viewId": "PVT_kwDOADwWwc4AYzN4",
+  "fieldId": "PVTF_kwDOADwWwc4AYzN5",
+  "isVisible": false,
+  "width": 150
+}
+
+### Remove a field from a project view
+DELETE {{baseUrl}}/PVT_kwDOADwWwc4AYzN4/fields/PVTF_kwDOADwWwc4AYzN5
+Content-Type: application/json
+
+### Set sorting for a project view
+POST {{baseUrl}}/sort
+Content-Type: application/json
+
+{
+  "viewId": "PVT_kwDOADwWwc4AYzN4",
+  "fieldId": "PVTF_kwDOADwWwc4AYzN5",
+  "direction": "ASC"
+}
+
+### Update sorting for a project view
+PUT {{baseUrl}}/sort
+Content-Type: application/json
+
+{
+  "viewId": "PVT_kwDOADwWwc4AYzN4",
+  "fieldId": "PVTF_kwDOADwWwc4AYzN5",
+  "direction": "DESC"
+}
+
+### Clear sorting for a project view
+DELETE {{baseUrl}}/PVT_kwDOADwWwc4AYzN4/sort
+Content-Type: application/json
+
+### Set grouping for a project view
+POST {{baseUrl}}/group
+Content-Type: application/json
+
+{
+  "viewId": "PVT_kwDOADwWwc4AYzN4",
+  "fieldId": "PVTF_kwDOADwWwc4AYzN5",
+  "direction": "ASC"
+}
+
+### Update grouping for a project view
+PUT {{baseUrl}}/group
+Content-Type: application/json
+
+{
+  "viewId": "PVT_kwDOADwWwc4AYzN4",
+  "fieldId": "PVTF_kwDOADwWwc4AYzN5",
+  "direction": "DESC"
+}
+
+### Clear grouping for a project view
+DELETE {{baseUrl}}/PVT_kwDOADwWwc4AYzN4/group
+Content-Type: application/json
+
+### Test with different field types
+
+### Get fields for a board view
+GET {{baseUrl}}/PVT_kwDOADwWwc4AYzN6/fields
+Content-Type: application/json
+
+### Add iteration field to view
+POST {{baseUrl}}/add
+Content-Type: application/json
+
+{
+  "viewId": "PVT_kwDOADwWwc4AYzN6",
+  "fieldId": "PVTIF_kwDOADwWwc4AYzN7",
+  "isVisible": true,
+  "width": 180
+}
+
+### Add single select field to view
+POST {{baseUrl}}/add
+Content-Type: application/json
+
+{
+  "viewId": "PVT_kwDOADwWwc4AYzN6",
+  "fieldId": "PVTSSF_kwDOADwWwc4AYzN8",
+  "isVisible": true,
+  "width": 150
+}
+
+### Sort by status field
+POST {{baseUrl}}/sort
+Content-Type: application/json
+
+{
+  "viewId": "PVT_kwDOADwWwc4AYzN6",
+  "fieldId": "PVTSSF_kwDOADwWwc4AYzN8",
+  "direction": "ASC"
+}
+
+### Group by assignee field
+POST {{baseUrl}}/group
+Content-Type: application/json
+
+{
+  "viewId": "PVT_kwDOADwWwc4AYzN6",
+  "fieldId": "PVTF_kwDOADwWwc4AYzN9",
+  "direction": "ASC"
+}

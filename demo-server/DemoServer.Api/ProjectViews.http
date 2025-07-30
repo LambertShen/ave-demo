@@ -1,0 +1,111 @@
+### GitHub Project View API Tests
+
+@baseUrl = http://localhost:5000
+@projectId = YOUR_PROJECT_ID_HERE
+
+### 1. 获取项目的视图列表
+GET {{baseUrl}}/api/github/projects/{{projectId}}/views
+Content-Type: application/json
+
+### 2. 获取项目的视图列表（带分页）
+GET {{baseUrl}}/api/github/projects/{{projectId}}/views?first=10&after=cursor_here
+Content-Type: application/json
+
+### 3. 根据ID获取项目视图详情
+@viewId = YOUR_VIEW_ID_HERE
+GET {{baseUrl}}/api/github/projects/{{projectId}}/views/{{viewId}}
+Content-Type: application/json
+
+### 4. 创建新的项目视图（表格布局）
+POST {{baseUrl}}/api/github/projects/{{projectId}}/views
+Content-Type: application/json
+
+{
+    "name": "My New Table View",
+    "layout": "TABLE"
+}
+
+### 5. 创建新的项目视图（看板布局）
+POST {{baseUrl}}/api/github/projects/{{projectId}}/views
+Content-Type: application/json
+
+{
+    "name": "Development Kanban",
+    "layout": "BOARD"
+}
+
+### 6. 创建新的项目视图（路线图布局）
+POST {{baseUrl}}/api/github/projects/{{projectId}}/views
+Content-Type: application/json
+
+{
+    "name": "Project Roadmap",
+    "layout": "ROADMAP"
+}
+
+### 7. 更新项目视图（仅名称）
+PUT {{baseUrl}}/api/github/projects/{{projectId}}/views/{{viewId}}
+Content-Type: application/json
+
+{
+    "name": "Updated View Name"
+}
+
+### 8. 更新项目视图（完整更新）
+PUT {{baseUrl}}/api/github/projects/{{projectId}}/views/{{viewId}}
+Content-Type: application/json
+
+{
+    "name": "Comprehensive Task View",
+    "layout": "TABLE"
+}
+
+### 9. 复制项目视图
+POST {{baseUrl}}/api/github/projects/{{projectId}}/views/{{viewId}}/copy
+Content-Type: application/json
+
+{
+    "newName": "Copy of Original View"
+}
+
+### 10. 删除项目视图
+DELETE {{baseUrl}}/api/github/projects/{{projectId}}/views/{{viewId}}
+
+### 测试错误情况
+
+### 11. 获取不存在的项目视图
+GET {{baseUrl}}/api/github/projects/{{projectId}}/views/invalid-view-id
+Content-Type: application/json
+
+### 12. 创建视图时缺少必需字段
+POST {{baseUrl}}/api/github/projects/{{projectId}}/views
+Content-Type: application/json
+
+{
+    "layout": "TABLE"
+}
+
+### 13. 更新不存在的视图
+PUT {{baseUrl}}/api/github/projects/{{projectId}}/views/invalid-view-id
+Content-Type: application/json
+
+{
+    "name": "This will fail"
+}
+
+### 14. 删除不存在的视图
+DELETE {{baseUrl}}/api/github/projects/{{projectId}}/views/invalid-view-id
+
+### 使用说明
+# 1. 请将 YOUR_PROJECT_ID_HERE 替换为实际的 GitHub 项目 ID
+# 2. 请将 YOUR_VIEW_ID_HERE 替换为实际的视图 ID
+# 3. 确保 GitHub Access Token 在 appsettings.json 中正确配置
+# 4. 确保 Token 具有适当的权限来管理项目视图
+
+### 获取项目 ID 的辅助请求
+GET {{baseUrl}}/api/github/projects
+Content-Type: application/json
+
+### 获取用户信息（用于调试）
+GET {{baseUrl}}/api/github/user-info
+Content-Type: application/json
